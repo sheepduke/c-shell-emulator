@@ -63,11 +63,12 @@ list *list_new() {
   return list;
 }
 
-void list_destroy(list *list) {
-  for (node *node = list->head; node; node = node->next) {
+void list_destroy(list **list) {
+  for (node *node = (*list)->head; node; node = node->next) {
 	node_destroy(node);
   }
-  free(list);
+  free(*list);
+  list = NULL;
 }
 
 size_t list_size(list *list) {

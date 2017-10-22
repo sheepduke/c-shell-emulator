@@ -3,8 +3,5 @@
 
 #include <stdlib.h>
 
-// typedef struct shell shell;
-
-void shell_start();
 
 #endif

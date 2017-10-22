@@ -4,7 +4,8 @@ project(shell C)
 
 include_directories(
   "src"
-  "src/util")
+  "src/util"
+  "src/shell")
 
 file(GLOB_RECURSE SOURCE
   "src/*.c")

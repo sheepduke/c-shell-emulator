@@ -7,7 +7,7 @@
 #define VECTOR_DEFAULT_SIZE 100
 
 // ----------------------------------------------------------------------
-// struct
+// Internal
 // ----------------------------------------------------------------------
 
 struct vector {
@@ -33,8 +33,9 @@ vector *vector_new(size_t element_size) {
   return v;
 }
 
-void vector_destroy(vector *vector) {
-  free(vector);
+void vector_destroy(vector **vector) {
+  free(*vector);
+  vector = NULL;
 }
 
 size_t vector_size(vector *vector) {
@@ -57,16 +58,4 @@ void vector_push(vector *v, void *element) {
   v->data[v->size] = element;
   v->size++;
 }
-
-void vector_insert(vector *vector, size_t index, void *data) {
-  assert(index < vector->size);
-  
-}
-
-/* TODO */
-void *find(void *value, int *compare(void *, void *));
-
-/* TODO */
-void vector_remove(void *value, int *compare(void *, void *));
-
 

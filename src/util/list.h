@@ -7,7 +7,7 @@ typedef struct list list;
 
 list *list_new();
 
-void list_destroy(list *list);
+void list_destroy(list **list);
 
 size_t list_size(list *list);
 
