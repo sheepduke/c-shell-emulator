@@ -72,3 +72,22 @@ void error(const char *format, ...) {
   string_destroy(&buffer);
 #endif
 }
+
+void fatal_error(const char *format, ...) {
+  string *buffer = string_new();
+
+  string_append(buffer, "Fatal Error: ");
+  string_append(buffer, format);
+  string_append(buffer, "\n");
+
+  va_list args;
+  va_start(args, format);
+
+  vfprintf(stderr, string_raw(buffer), args);
+
+  va_end(args);
+
+  string_destroy(&buffer);
+
+  exit(1);
+}

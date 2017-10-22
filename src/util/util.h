@@ -13,4 +13,6 @@ void warn(const char *format, ...);
 
 void error(const char *format, ...);
 
+void fatal_error(const char *format, ...);
+
 #endif

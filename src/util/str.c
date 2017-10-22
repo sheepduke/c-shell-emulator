@@ -88,7 +88,7 @@ size_t string_length(string *string) {
   return string->length;
 }
 
-const char *string_raw(string *string) {
+char *string_raw(string *string) {
   return string->data;
 }
 

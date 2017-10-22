@@ -20,8 +20,7 @@ struct command {
 command *command_new(string *name) {
   command *cmd = malloc(sizeof(command));
 
-  cmd->name = string_new();
-  string_copy(cmd->name, name);
+  cmd->name = name;
 
   cmd->args = vector_new();
 

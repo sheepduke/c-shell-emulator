@@ -37,7 +37,7 @@ size_t string_length(string *string);
 
 // Return the raw data.
 // 
-const char *string_raw(string *string);
+char *string_raw(string *string);
 
 // Return char at given index of string.
 // 
