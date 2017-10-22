@@ -14,6 +14,7 @@ struct vector {
   void **data;
   size_t size;
   size_t capacity;
+  void (*destructor)(void *);
 };
 
 
@@ -21,21 +22,29 @@ struct vector {
 // API
 // ----------------------------------------------------------------------
 
-vector *vector_new(size_t element_size) {
+vector *vector_new(void (*destructor)(void *)) {
   vector *v = malloc(sizeof(vector));
 
-  if (v) {
-	v->capacity = VECTOR_DEFAULT_SIZE;
-	v->size = 0;
-	v->data = malloc(sizeof(void *) * v->capacity);
-  }
+  assert(v);
+  
+  v->capacity = VECTOR_DEFAULT_SIZE;
+  v->size = 0;
+  v->data = malloc(sizeof(void *) * v->capacity);
+  v->destructor = destructor;
 	
   return v;
 }
 
-void vector_destroy(vector **vector) {
-  free(*vector);
-  vector = NULL;
+void vector_destroy(void *vector) {
+  free(vector);
+}
+
+void vector_destroy_all(void *vec) {
+  vector *vector_ = vec;
+  for (int i = 0; i < vector_->size; i++) {
+	vector_->destructor(vector_at(vector_, i));
+  }
+  free(vector_);
 }
 
 size_t vector_size(vector *vector) {

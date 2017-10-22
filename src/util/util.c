@@ -32,7 +32,7 @@ void info(const char *format, ...) {
   vprintf(string_raw(buffer), args);
   va_end(args);
 
-  string_destroy(&buffer);
+  string_destroy(buffer);
 #endif
 }
 
@@ -47,7 +47,7 @@ void warn(const char *format, ...) {
   vfprintf(stderr, string_raw(buffer), args);
   va_end(args);
 
-  string_destroy(&buffer);
+  string_destroy(buffer);
 #endif
 }
 
@@ -69,7 +69,7 @@ void error(const char *format, ...) {
   va_end(args);
 
 #ifndef NDEBUG
-  string_destroy(&buffer);
+  string_destroy(buffer);
 #endif
 }
 
@@ -87,7 +87,7 @@ void fatal_error(const char *format, ...) {
 
   va_end(args);
 
-  string_destroy(&buffer);
+  string_destroy(buffer);
 
   exit(1);
 }

@@ -5,11 +5,6 @@
 
 const int STRING_SIZE_CHUNK = 1024;
 
-struct string {
-  size_t length;
-  size_t capacity;
-  char *data;
-};
 
 // ======================================================================
 //  Interval Functions
@@ -39,6 +34,7 @@ static bool is_space(char ch) {
 string *string_new() {
   string *string = malloc(sizeof(string));
 
+  // string_clear will initialize it.
   string->data = NULL;
   string_clear(string);
   
@@ -67,12 +63,12 @@ void string_clear(string *string) {
   string->capacity = STRING_SIZE_CHUNK;
 }
 
-void string_destroy(string **string) {
-  if (string) {
-	free((*string)->data);
-	free(*string);
+void string_destroy(void *str) {
+  string *str_ = str;
+  if (str_) {
+	free(str_->data);
+	free(str_);
   }
-  string = NULL;
 }
 
 bool string_empty(string *str) {

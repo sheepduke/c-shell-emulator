@@ -1,7 +1,16 @@
+#ifndef STR_H
+#define STR_H
+
 #include <stdlib.h>
 #include <stdbool.h>
 
 typedef struct string string;
+
+struct string {
+  size_t length;
+  size_t capacity;
+  char *data;
+};
 
 // Create empty string.
 // 
@@ -21,7 +30,7 @@ void string_clear(string *string);
 
 // Destructor.
 // 
-void string_destroy(string **string);
+void string_destroy(void *string);
 
 // Return true if string is empty.
 // 
@@ -66,3 +75,6 @@ void string_sub(string *str, size_t start, size_t end);
 // Trim any space, newline etc from str.
 // 
 void string_trim(string *str);
+
+
+#endif

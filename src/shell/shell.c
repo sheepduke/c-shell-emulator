@@ -78,7 +78,7 @@ void shell_start() {
 	shell_cd(shell, line);
   }
 
-  string_destroy(&line);
+  string_destroy(line);
   shell_destroy(shell);
 }
 

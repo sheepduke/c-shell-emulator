@@ -9,11 +9,15 @@ typedef struct vector vector;
 
 // Create a vector and return its pointer.
 // 
-vector *vector_new();
+vector *vector_new(void (*destructor)(void *));
 
-// Destroy a vector, without touching its elements.
+// Destroy the vector without touching its elements.
 // 
-void vector_destroy(vector **);
+void vector_destroy(void *);
+
+// Apply destructor to its elements and destroy it.
+// 
+void vector_destroy_all(void *);
 
 // Return size of vector.
 // Size here means how many elements are there in the vector.
