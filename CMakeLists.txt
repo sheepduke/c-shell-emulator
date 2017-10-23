@@ -12,7 +12,7 @@ file(GLOB_RECURSE SOURCE
 
 add_executable(shell ${SOURCE})
 
-# set_property(TARGET shell PROPERTY C_STANDARD ?)
+set_property(TARGET shell PROPERTY C_STANDARD 99)
 
 # Treat warning as error.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")

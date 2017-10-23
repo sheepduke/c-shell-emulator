@@ -20,17 +20,13 @@ int main(int argc, char *argv[]) {
 
   
   info("Executing command sequence:");
-  string *cmd_string = string_new();
   for (int i = 0; i < vector_size(commands); i++) {
+	string *cmd_string = string_new();
 	const command *cmd = vector_at(commands, i);
 	command_to_string(cmd, cmd_string);
-	info(" | %s", string_raw(cmd_string));
-	string_clear(cmd_string);
+	printf(" | %s\n", string_raw(cmd_string));
+	string_destroy(cmd_string);
   }
-  // free(cmd_string->data);
-  // printf("%ld\n", cmd_string->data);
-  free(cmd_string);
-  // string_destroy(cmd_string);
 
 
   execute_command_sequence(commands);

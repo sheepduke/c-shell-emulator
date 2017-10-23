@@ -6,6 +6,18 @@
 #include <stdarg.h>
 #include <unistd.h>
 
+// ======================================================================
+// Internal
+// ======================================================================
+#ifndef PRINT_LOG
+#define PRINT_LOG(...) printf(__VA_ARGS__)
+#endif
+
+// ======================================================================
+// API
+// ======================================================================
+
+
 int read_line(string *str, FILE *stream) {
   assert(str);
   
@@ -22,72 +34,28 @@ int read_line(string *str, FILE *stream) {
 }
 
 void info(const char *format, ...) {
-#ifndef NDEBUG
-  string *buffer = string_from("[info] ");
-  string_append(buffer, format);
-  string_append(buffer, "\n");
-
+  printf("[info] ");
   va_list args;
   va_start(args, format);
-  vprintf(string_raw(buffer), args);
+  vprintf(format, args);
   va_end(args);
-
-  string_destroy(buffer);
-#endif
+  printf("\n");
 }
 
 void warn(const char *format, ...) {
-#ifndef NDEBUG
-  string *buffer = string_from("[Warning] ");
-  string_append(buffer, format);
-  string_append(buffer, "\n");
-
+  printf("[Warning] ");
   va_list args;
   va_start(args, format);
-  vfprintf(stderr, string_raw(buffer), args);
+  vprintf(format, args);
   va_end(args);
-
-  string_destroy(buffer);
-#endif
+  printf("\n");
 }
 
 void error(const char *format, ...) {
-  string *buffer = string_new();
-
-#ifndef NDEBUG
-  string_append(buffer, "[ERROR] ");
-#endif
-
-  string_append(buffer, format);
-  string_append(buffer, "\n");
-
+  printf("[ERROR] ");
   va_list args;
   va_start(args, format);
-
-  vfprintf(stderr, string_raw(buffer), args);
-
+  vprintf(format, args);
   va_end(args);
-
-#ifndef NDEBUG
-  string_destroy(buffer);
-#endif
-}
-
-void fatal_error(const char *format, ...) {
-  string *buffer = string_new();
-
-  string_append(buffer, "Fatal Error: ");
-  string_append(buffer, format);
-  string_append(buffer, "\n");
-
-  va_list args;
-  va_start(args, format);
-
-  vfprintf(stderr, string_raw(buffer), args);
-
-  va_end(args);
-
-  string_destroy(buffer);
-
-  exit(1);
+  printf("\n");  
 }
