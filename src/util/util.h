@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-int read_line(string *str, FILE *stream);
+int read_line(String *str, FILE *stream);
 
 void info(const char *format, ...);
 

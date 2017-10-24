@@ -14,7 +14,7 @@
 typedef struct shell shell;
 
 struct shell {
-  string *pwd;
+  String *pwd;
 };
 
 static shell *shell_new() {
@@ -41,7 +41,7 @@ static void shell_destroy(shell *shell) {
   free(shell);
 }
 
-static void shell_cd(shell *shell, string *dir) {
+static void shell_cd(shell *shell, String *dir) {
   if (chdir(string_raw(dir)) == -1) {
 	error("cd: %s", strerror(errno));
   }
@@ -63,7 +63,7 @@ void shell_start() {
 
   shell *shell = shell_new();
 
-  string *line = string_new();
+  String *line = string_new();
   
   while (true) {
 	printf("%s $ ", string_raw(shell->pwd));

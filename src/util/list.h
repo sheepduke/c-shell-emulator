@@ -3,28 +3,28 @@
 
 #include <stdio.h>
 
-typedef struct list list;
+typedef struct List List;
 
-list *list_new();
+List *list_new();
 
-void list_destroy(list **list);
+void list_destroy(List *list);
 
-size_t list_size(list *list);
+size_t list_size(List *list);
 
-void *list_front(list *list);
+void *list_front(List *list);
 
-void *list_back(list *list);
+void *list_back(List *list);
 
-void list_foreach(list *list, void (*func)(void *data));
+void list_foreach(List *list, void (*func)(void *data));
 
-list *list_push_back(list *list, void *element);
+List *list_push_back(List *list, void *element);
 
-list *list_push_front(list *list, void *element);
+List *list_push_front(List *list, void *element);
 
-void list_pop_front(list *list);
+void list_pop_front(List *list);
 
-void list_pop_back(list *list);
+void list_pop_back(List *list);
 
-void list_clear(list *list);
+void list_clear(List *list);
 
 #endif

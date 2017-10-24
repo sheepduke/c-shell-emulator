@@ -18,7 +18,7 @@
 // ======================================================================
 
 
-int read_line(string *str, FILE *stream) {
+int read_line(String *str, FILE *stream) {
   assert(str);
   
   size_t size = 0;

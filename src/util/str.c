@@ -10,9 +10,16 @@ const int STRING_SIZE_CHUNK = 1024;
 //  Interval Functions
 // ======================================================================
 
+struct String {
+  size_t length;
+  size_t capacity;
+  char *data;
+};
+
+
 // Increase the capacity of string to safely hold `target'.
 // 
-static void string_grow_capacity(string *string, size_t length) {
+static void string_grow_capacity(String *string, size_t length) {
   while (string->capacity < length + 1) {
 	string->capacity += STRING_SIZE_CHUNK;
 	void *new_data = realloc(string->data, string->capacity);
@@ -31,8 +38,8 @@ static bool is_space(char ch) {
 //  API
 // ======================================================================
 
-string *string_new() {
-  string *string = malloc(sizeof(string));
+String *string_new() {
+  String *string = malloc(sizeof(string));
 
   // string_clear will initialize it.
   string->data = NULL;
@@ -41,21 +48,21 @@ string *string_new() {
   return string;
 }
 
-string *string_from(const char *data) {
-  string *string = string_new();
+String *string_from(const char *data) {
+  String *string = string_new();
 
   string_append(string, data);
 
   return string;
 }
 
-void string_copy(string *str, string *source) {
+void string_copy(String *str, String *source) {
   assert(str && source && source->data);
 
   string_set(str, string_raw(source));
 }
 
-void string_clear(string *string) {
+void string_clear(String *string) {
   free(string->data);
   string->data = malloc(sizeof(char) * STRING_SIZE_CHUNK);
   string->data[0] = '\0';
@@ -64,38 +71,38 @@ void string_clear(string *string) {
 }
 
 void string_destroy(void *str) {
-  string *str_ = str;
+  String *str_ = str;
   if (str_) {
 	free(str_->data);
 	free(str_);
   }
 }
 
-bool string_empty(string *str) {
+bool string_empty(String *str) {
   return (string_length(str) == 0);
 }
 
-bool string_equal(string *str1, string *str2) {
+bool string_equal(String *str1, String *str2) {
   assert(str1 && str2);
   return (strcmp(str1->data, str2->data) == 0);
 }
 
-size_t string_length(string *string) {
+size_t string_length(String *string) {
   return string->length;
 }
 
-char *string_raw(string *string) {
+char *string_raw(String *string) {
   return string->data;
 }
 
-char string_at(string *str, size_t index) {
+char string_at(String *str, size_t index) {
   assert(str && str->data);
   assert(index < str->length);
 
   return str->data[index];
 }
 
-size_t string_find(string *str, char ch) {
+size_t string_find(String *str, char ch) {
   for (size_t i = 0; i < str->length; i++) {
 	if (string_at(str, i) == ch) {
 	  return i;
@@ -105,12 +112,12 @@ size_t string_find(string *str, char ch) {
   return -1;
 }
 
-void string_set(string *str, const char *content) {
+void string_set(String *str, const char *content) {
   string_clear(str);
   string_append(str, content);
 }
 
-void string_append(string *string, const char *data) {
+void string_append(String *string, const char *data) {
   assert(string);
 
   if (data && strlen(data) > 0) {
@@ -121,12 +128,12 @@ void string_append(string *string, const char *data) {
   }
 }
 
-void string_concat(string *str, string *source) {
+void string_concat(String *str, String *source) {
   assert(str && source);
   string_append(str, source->data);
 }
 
-void string_sub(string *str, size_t start, size_t end) {
+void string_sub(String *str, size_t start, size_t end) {
   assert(start < string_length(str) + 1 && end < string_length(str) + 1);
 
   size_t index = 0;
@@ -138,7 +145,7 @@ void string_sub(string *str, size_t start, size_t end) {
   str->length = end - start;
 }
 
-void string_trim(string *str) {
+void string_trim(String *str) {
   size_t start = string_length(str);
   
   for (size_t i = 0; i < string_length(str); i++) {

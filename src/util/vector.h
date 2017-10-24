@@ -5,11 +5,11 @@
 
 // Struct for vector itself.
 // 
-typedef struct vector vector;
+typedef struct Vector Vector;
 
 // Create a vector and return its pointer.
 // 
-vector *vector_new(void (*destructor)(void *));
+Vector *vector_new(void (*destructor)(void *));
 
 // Destroy the vector without touching its elements.
 // 
@@ -22,20 +22,20 @@ void vector_destroy_all(void *);
 // Return size of vector.
 // Size here means how many elements are there in the vector.
 // 
-size_t vector_size(vector *v);
+size_t vector_size(Vector *v);
 
 // Return element at position `index'.
 // If `index' is not valid, return NULL.
 // 
-void *vector_at(vector *v, size_t index);
+void *vector_at(Vector *v, size_t index);
 
 // Push an element to the last position of vector.
 // 
-void vector_push(vector *v, void *element);
+void vector_push(Vector *v, void *element);
 
 // // Insert an element `data' into position indicated by `index'.
 // // 
-// void vector_insert(vector *vector, size_t index, void *data);
+// void vector_insert(Vector *vector, size_t index, void *data);
 
 // // Return element equals to given `value'.
 // // 

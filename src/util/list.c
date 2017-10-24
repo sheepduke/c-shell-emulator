@@ -8,16 +8,16 @@
 // node definition
 // ----------------------------------------------------------------------
 
-typedef struct node node;
+typedef struct Node Node;
 
-struct node {
+struct Node {
   void *data;
-  node *prev;
-  node *next;
+  Node *prev;
+  Node *next;
 };
 
-static node *node_new(void *data) {
-  node *node = malloc(sizeof(node));
+static Node *node_new(void *data) {
+  Node *node = malloc(sizeof(node));
   assert(node);
 
   node->data = data;
@@ -27,21 +27,22 @@ static node *node_new(void *data) {
   return node;
 }
 
-static void node_destroy(node *node) {
+static void node_destroy(Node *node) {
+  free(node->data);
   free(node);
 }
 
-struct list {
+struct List {
   size_t size;
-  node *head;
-  node *tail;
+  Node *head;
+  Node *tail;
 };
 
 // ----------------------------------------------------------------------
 // internal function
 // ----------------------------------------------------------------------
 
-void link_node(node *left, node *right) {
+void link_node(Node *left, Node *right) {
   if (left) {
 	left->next = right;
   }
@@ -54,8 +55,8 @@ void link_node(node *left, node *right) {
 // API
 // ----------------------------------------------------------------------
 
-list *list_new() {
-  list *list = malloc(sizeof(list));
+List *list_new() {
+  List *list = malloc(sizeof(List));
   assert(list);
   
   list->size = 0;
@@ -63,39 +64,43 @@ list *list_new() {
   return list;
 }
 
-void list_destroy(list **list) {
-  for (node *node = (*list)->head; node; node = node->next) {
-	node_destroy(node);
+void list_destroy(List *list) {
+  Node *node = list->head;
+  Node *temp = node;
+
+  while (node) {
+    temp = node->next;
+    node_destroy(node);
+    node = temp;
   }
-  free(*list);
-  list = NULL;
+  free(list);
 }
 
-size_t list_size(list *list) {
+size_t list_size(List *list) {
   assert(list);
   return list->size;
 }
 
-void *list_front(list *list) {
+void *list_front(List *list) {
   assert(list);
   return (list->head ? list->head->data : NULL);
 }
 
-void *list_back(list *list) {
+void *list_back(List *list) {
   assert(list);
   return (list->tail ? list->tail->data : NULL);
 }
 
-void list_foreach(list *list, void (*func)(void *data)) {
+void list_foreach(List *list, void (*func)(void *data)) {
   assert(list);
-  for (node *node = list->head; node; node = node->next) {
+  for (Node *node = list->head; node; node = node->next) {
 	func(node->data);
   }
 }
 
-list *list_push_back(list *list, void *data) {
+List *list_push_back(List *list, void *data) {
   assert(list && data);
-  node *new_node = node_new(data);
+  Node *new_node = node_new(data);
   if (list->tail) {
 	link_node(list->tail, new_node);
 	list->tail = list->tail->next;
@@ -107,10 +112,10 @@ list *list_push_back(list *list, void *data) {
   return list;
 }
 
-list *list_push_front(list *list, void *data) {
+List *list_push_front(List *list, void *data) {
   assert(list && data);
   
-  node *new_node = node_new(data);
+  Node *new_node = node_new(data);
   
   if (list->head) {
 	link_node(new_node, list->head);
@@ -123,27 +128,27 @@ list *list_push_front(list *list, void *data) {
   return list;
 }
 
-void list_pop_front(list *list) {
+void list_pop_front(List *list) {
   assert(list);
   if (list->head) {
-	node *old_head = list->head;
+	Node *old_head = list->head;
 	list->head = list->head->next;
 	node_destroy(old_head);
   }
   list->size--;
 }
 
-void list_pop_back(list *list) {
+void list_pop_back(List *list) {
   assert(list);
   if (list->tail) {
-	node *old_tail = list->tail;
+	Node *old_tail = list->tail;
 	list->tail = list->tail->prev;
 	node_destroy(old_tail);
   }
   list->size--;
 }
 
-void list_clear(list *list) {
+void list_clear(List *list) {
   assert(list);
   list_foreach(list, free);
   list->head = list->tail = NULL;

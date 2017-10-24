@@ -10,17 +10,17 @@
 // Internal
 // ======================================================================
 
-struct command {
-  string *name;
-  vector *args;
+struct Command {
+  String *name;
+  Vector *args;
 };
 
 // ======================================================================
 // API
 // ======================================================================
 
-command *command_new(string *name) {
-  command *cmd = malloc(sizeof(command));
+Command *command_new(String *name) {
+  Command *cmd = malloc(sizeof(Command));
 
   cmd->name = name;
 
@@ -31,17 +31,17 @@ command *command_new(string *name) {
 
 
 void command_destroy(void *cmd) {
-  command *cmd_ = cmd;
+  Command *cmd_ = cmd;
   string_destroy(cmd_->name);
   vector_destroy(cmd_->args);
   free(cmd);
 }
 
-string *command_name(const command *cmd) {
+String *command_name(const Command *cmd) {
   return cmd->name;
 }
 
-void command_to_string(const command *cmd, string *str) {
+void command_to_string(const Command *cmd, String *str) {
   string_append(str, "Command: ");
   string_concat(str, cmd->name);
   for (int i = 0; i < vector_size(cmd->args); i++) {
@@ -50,7 +50,7 @@ void command_to_string(const command *cmd, string *str) {
   }
 }
 
-void command_exec(command *cmd, int fd_in[2], int fd_out[2]) {
+void command_exec(Command *cmd, int fd_in[2], int fd_out[2]) {
   close(fd_in[1]);
   close(fd_out[0]);
 
@@ -65,21 +65,21 @@ void command_exec(command *cmd, int fd_in[2], int fd_out[2]) {
   close(fd_out[1]);
 }
 
-void execute_command_sequence(vector *commands) {
+void execute_command_sequence(Vector *commands) {
 
-// #ifndef NDEBUG
-//   info("Executing command sequence:");
-//   string *cmd_string = string_new();
-//   for (int i = 0; i < vector_size(commands); i++) {
-// 	command *cmd = vector_at(commands, i);
-// 	command_to_string(cmd, cmd_string);
-// 	info("  %s", string_raw(cmd_string));
-// 	string_clear(cmd_string);
-//   }
-//   string_destroy(cmd_string);
-// #endif
+#ifndef NDEBUG
+  info("Executing command sequence:");
+  String *cmd_string = string_new();
+  for (int i = 0; i < vector_size(commands); i++) {
+	Command *cmd = vector_at(commands, i);
+	command_to_string(cmd, cmd_string);
+	info(" | %s", string_raw(cmd_string));
+	string_clear(cmd_string);
+  }
+  string_destroy(cmd_string);
+#endif
   
-  vector *pipes = vector_new(free);
+  Vector *pipes = vector_new(free);
   size_t command_count = vector_size(commands);
   
   for (int i = 0; i <= command_count; i++) {

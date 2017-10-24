@@ -4,18 +4,18 @@
 #include "str.h"
 #include "vector.h"
 
-typedef struct command command;
+typedef struct Command Command;
 
-command *command_new(string *name);
+Command *command_new(String *name);
 
 void command_destroy(void *cmd);
 
-string *command_name(const command *cmd);
+String *command_name(const Command *cmd);
 
-void command_to_string(const command *cmd, string *str);
+void command_to_string(const Command *cmd, String *str);
 
-void command_exec(command *cmd, int fd_in[2], int fd_out[2]);
+void command_exec(Command *cmd, int fd_in[2], int fd_out[2]);
 
-void execute_command_sequence(vector *commands);
+void execute_command_sequence(Vector *commands);
   
 #endif

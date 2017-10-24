@@ -4,29 +4,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-typedef struct string string;
-
-struct string {
-  size_t length;
-  size_t capacity;
-  char *data;
-};
+typedef struct String String;
 
 // Create empty string.
 // 
-string *string_new();
+String *string_new();
 
 // Create string from given `data'.
 // 
-string *string_from(const char *data);
+String *string_from(const char *data);
 
 // Copy constructor
 // 
-void string_copy(string *str, string *source);
+void string_copy(String *str, String *source);
 
 // Clear the content of string.
 // 
-void string_clear(string *string);
+void string_clear(String *string);
 
 // Destructor.
 // 
@@ -34,47 +28,47 @@ void string_destroy(void *string);
 
 // Return true if string is empty.
 // 
-bool string_empty(string *str);
+bool string_empty(String *str);
 
 // Return true if `str1' and `str2' are equal.
 // 
-bool string_equal(string *str1, string *str2);
+bool string_equal(String *str1, String *str2);
 
 // Return the length of characters, excluding '\0'.
 // 
-size_t string_length(string *string);
+size_t string_length(String *string);
 
 // Return the raw data.
 // 
-char *string_raw(string *string);
+char *string_raw(String *string);
 
 // Return char at given index of string.
 // 
-char string_at(string *str, size_t index);
+char string_at(String *str, size_t index);
 
 // Return the first index of `ch' found in string.
 // 
-size_t string_find(string *str, char ch);
+size_t string_find(String *str, char ch);
 
 // Set the content of string to given content.
 // 
-void string_set(string *str, const char *content);
+void string_set(String *str, const char *content);
 
 // Append characters `data' into `string'.
 // 
-void string_append(string *string, const char *data);
+void string_append(String *string, const char *data);
 
 // Concatenate the content of `string2' into `string1'.
 // 
-void string_concat(string *string1, string *source);
+void string_concat(String *string1, String *source);
 
 // For given `str', remove `length' of characters starting at `start'.
 // 
-void string_sub(string *str, size_t start, size_t end);
+void string_sub(String *str, size_t start, size_t end);
 
 // Trim any space, newline etc from str.
 // 
-void string_trim(string *str);
+void string_trim(String *str);
 
 
 #endif
