@@ -11,23 +11,19 @@ typedef struct Vector Vector;
 // 
 Vector *vector_new(void (*destructor)(void *));
 
-// Destroy the vector without touching its elements.
+// Destroy the vector and its elements.
 // 
 void vector_destroy(void *);
-
-// Apply destructor to its elements and destroy it.
-// 
-void vector_destroy_all(void *);
 
 // Return size of vector.
 // Size here means how many elements are there in the vector.
 // 
-size_t vector_size(Vector *v);
+size_t vector_size(const Vector *v);
 
 // Return element at position `index'.
 // If `index' is not valid, return NULL.
 // 
-void *vector_at(Vector *v, size_t index);
+void *vector_at(const Vector *v, size_t index);
 
 // Push an element to the last position of vector.
 // 

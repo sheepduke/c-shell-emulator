@@ -35,24 +35,20 @@ Vector *vector_new(void (*destructor)(void *)) {
   return v;
 }
 
-void vector_destroy(void *vector) {
+void vector_destroy(void *obj) {
+  Vector *vector = obj;
+  for (int i = 0; i < vector->size; i++) {
+	vector->destructor(vector_at(vector, i));
+  }
   free(vector);
 }
 
-void vector_destroy_all(void *vec) {
-  Vector *vector_ = vec;
-  for (int i = 0; i < vector_->size; i++) {
-	vector_->destructor(vector_at(vector_, i));
-  }
-  free(vector_);
-}
-
-size_t vector_size(Vector *vector) {
+size_t vector_size(const Vector *vector) {
   assert(vector);
   return vector->size;
 }
 
-void *vector_at(Vector *v, size_t index) {
+void *vector_at(const Vector *v, size_t index) {
   assert(index < v->size);
 
   return v->data[index];

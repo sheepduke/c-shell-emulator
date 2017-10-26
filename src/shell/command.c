@@ -115,5 +115,5 @@ void execute_command_sequence(Vector *commands) {
   }
   wait(NULL);
 
-  vector_destroy_all(pipes);
+  vector_destroy(pipes);
 }

@@ -9,13 +9,13 @@ List *list_new();
 
 void list_destroy(List *list);
 
-size_t list_size(List *list);
+size_t list_size(const List *list);
 
-void *list_front(List *list);
+void *list_front(const List *list);
 
-void *list_back(List *list);
+void *list_back(const List *list);
 
-void list_foreach(List *list, void (*func)(void *data));
+void list_foreach(const List *list, void (*func)(void *data));
 
 List *list_push_back(List *list, void *element);
 

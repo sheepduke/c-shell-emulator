@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "util.h"
+#include "cmd_parser.h"
 
 #include <stdbool.h>
 #include <unistd.h>
@@ -11,14 +12,14 @@
 //  Internal
 // ----------------------------------------------------------------------
 
-typedef struct shell shell;
+typedef struct Shell Shell;
 
-struct shell {
+struct Shell {
   String *pwd;
 };
 
-static shell *shell_new() {
-  shell *shell = malloc(sizeof(struct shell));
+static Shell *shell_new() {
+  Shell *shell = malloc(sizeof(Shell));
 
   // Set home directory.
   shell->pwd = string_from(getenv("HOME"));
@@ -37,11 +38,11 @@ static shell *shell_new() {
   return shell;
 }
 
-static void shell_destroy(shell *shell) {
+static void shell_destroy(Shell *shell) {
   free(shell);
 }
 
-static void shell_cd(shell *shell, String *dir) {
+void shell_cd(Shell *shell, String *dir) {
   if (chdir(string_raw(dir)) == -1) {
 	error("cd: %s", strerror(errno));
   }
@@ -61,7 +62,7 @@ static void shell_cd(shell *shell, String *dir) {
 
 void shell_start() {
 
-  shell *shell = shell_new();
+  Shell *shell = shell_new();
 
   String *line = string_new();
   
@@ -74,8 +75,8 @@ void shell_start() {
 	  break;
 	}
 	string_trim(line);
-	printf("Your input: %s\n", string_raw(line));
-	shell_cd(shell, line);
+    parse(line);
+	// shell_cd(shell, line);
   }
 
   string_destroy(line);

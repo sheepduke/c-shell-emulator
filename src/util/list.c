@@ -76,22 +76,22 @@ void list_destroy(List *list) {
   free(list);
 }
 
-size_t list_size(List *list) {
+size_t list_size(const List *list) {
   assert(list);
   return list->size;
 }
 
-void *list_front(List *list) {
+void *list_front(const List *list) {
   assert(list);
   return (list->head ? list->head->data : NULL);
 }
 
-void *list_back(List *list) {
+void *list_back(const List *list) {
   assert(list);
   return (list->tail ? list->tail->data : NULL);
 }
 
-void list_foreach(List *list, void (*func)(void *data)) {
+void list_foreach(const List *list, void (*func)(void *data)) {
   assert(list);
   for (Node *node = list->head; node; node = node->next) {
 	func(node->data);
