@@ -46,6 +46,10 @@ char *string_raw(const String *string);
 // 
 char string_at(const String *str, size_t index);
 
+// Return the last char of string.
+// 
+char string_last(const String *str);
+
 // Return the first index of `ch' found in string.
 // 
 size_t string_find(const String *str, char ch);

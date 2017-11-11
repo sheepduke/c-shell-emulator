@@ -102,6 +102,12 @@ char string_at(const String *str, size_t index) {
   return str->data[index];
 }
 
+char string_last(const String *str) {
+  assert(str && str->data);
+
+  return str->data[str->length - 1];
+}
+
 size_t string_find(const String *str, char ch) {
   for (size_t i = 0; i < str->length; i++) {
 	if (string_at(str, i) == ch) {
