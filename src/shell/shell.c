@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "util.h"
 #include "cmd_parser.h"
+#include "command.h"
 
 #include <stdbool.h>
 #include <unistd.h>
@@ -75,8 +76,11 @@ void shell_start() {
 	  break;
 	}
 	string_trim(line);
-    parse(line);
+
+    Vector *commands = vector_new(command_destroy);
+    parse(line, commands);
 	// shell_cd(shell, line);
+    vector_destroy(commands);
   }
 
   string_destroy(line);

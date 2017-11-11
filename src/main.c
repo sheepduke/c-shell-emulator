@@ -19,12 +19,34 @@
 
 //   execute_command_sequence(commands);
 
-//   vector_destroy_all(commands);
+//   vector_destroy(commands);
+// }
+
+
+// int main() {
+
+//   shell_start();
+
+//   return 0;
 // }
 
 int main() {
 
-  shell_start();
+  Vector *commands = vector_new(command_destroy);
+
+  Command *command = command_new(string_from("echo"));
+  command_push_arg(command, string_from("asdf"));
+  vector_push(commands, command);
+
+  command = command_new(string_from("cat"));
+  vector_push(commands, command);
+
+  command =command_new(string_from("sleep"));
+  command_push_arg(command, string_from("3"));
+
+  vector_push(commands, command);
+  
+  execute_command_pipe(commands);
 
   return 0;
 }

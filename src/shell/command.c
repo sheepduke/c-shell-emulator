@@ -1,5 +1,6 @@
 #include "command.h"
 #include "vector.h"
+#include "str.h"
 #include "util.h"
 
 #include <stdlib.h>
@@ -13,6 +14,15 @@
 struct Command {
   String *name;
   Vector *args;
+  Vector *io;
+};
+
+
+struct CommandIO {
+  CommandIODirection direction;
+  const char *filename;
+  int old;
+  int new;
 };
 
 // ======================================================================
@@ -37,38 +47,69 @@ void command_destroy(void *cmd) {
   free(cmd);
 }
 
-String *command_name(const Command *cmd) {
+const String *command_name(const Command *cmd) {
   return cmd->name;
+}
+
+const Vector *command_args(const Command *command) {
+  return command->args;
 }
 
 void command_to_string(const Command *cmd, String *str) {
   string_append(str, "Command: ");
   string_concat(str, cmd->name);
   for (int i = 0; i < vector_size(cmd->args); i++) {
-	string_concat(str, vector_at(cmd->args, i));
 	string_append(str, " ");
+	string_concat(str, vector_at(cmd->args, i));
   }
 }
 
-void command_exec(Command *cmd, int fd_in[2], int fd_out[2]) {
+void command_push_arg(Command *command, String *arg) {
+  vector_push(command->args, arg);
+}
+
+void command_exec(const Command *command, int fd_in[2], int fd_out[2]) {
+  // Handle I/O redirection.
   close(fd_in[1]);
   close(fd_out[0]);
 
   dup2(fd_in[0], STDIN_FILENO);
   dup2(fd_out[1], STDOUT_FILENO);
 
-  char **buf = malloc(1024);
-  buf[0] = string_raw(command_name(cmd));
-  execvp(buf[0], buf);
+  // Prepare command buffers.
+  const Vector *args = command_args(command);
+  char **buffer = malloc(sizeof(char *) * (vector_size(args) + 1));
+  buffer[0] = string_raw(command_name(command));
+
+  for (int i = 1; i <= vector_size(args); i++) {
+    buffer[i] = string_raw(vector_at(args, i-1));
+  }
+
+  // Extract arguments
+
+
+  execvp(buffer[0], buffer);
 
   close(fd_in[0]);
   close(fd_out[1]);
 }
 
 void execute_command_sequence(Vector *commands) {
+  for (int i = 0; i < vector_size(commands); i++) {
+    execute_command_and(vector_at(commands, i));
+  }
+}
+
+void execute_command_and(Vector *commands) {
+  for (int i = 0; i < vector_size(commands); i++) {
+    execute_command_pipe(vector_at(commands, i));
+  }
+}
+
+void execute_command_pipe(Vector *commands) {
 
 #ifndef NDEBUG
-  info("Executing command sequence:");
+  info("Executing command pipe:");
   String *cmd_string = string_new();
   for (int i = 0; i < vector_size(commands); i++) {
 	Command *cmd = vector_at(commands, i);
@@ -81,10 +122,13 @@ void execute_command_sequence(Vector *commands) {
   
   Vector *pipes = vector_new(free);
   size_t command_count = vector_size(commands);
+  pid_t first_pid = -1;
   
   for (int i = 0; i <= command_count; i++) {
 	int *pipe_fd = malloc(sizeof(int) * 2);
-	pipe(pipe_fd);
+    if (pipe(pipe_fd) == -1) {
+      exit(1);
+    }
 
 	if (i == 0) {
 	  close(pipe_fd[1]);
@@ -100,7 +144,9 @@ void execute_command_sequence(Vector *commands) {
 
   for (int i = 0; i < command_count; i++) {
 	pid_t pid = fork();
-
+    if (i == 0) {
+      first_pid = pid;
+    }
 	
 	int *pipe_in = vector_at(pipes, i);
 	int *pipe_out = vector_at(pipes, i+1);
@@ -113,7 +159,9 @@ void execute_command_sequence(Vector *commands) {
 
 	}
   }
-  wait(NULL);
+
+  int status;
+  waitpid(first_pid, &status,WUNTRACED);
 
   vector_destroy(pipes);
 }

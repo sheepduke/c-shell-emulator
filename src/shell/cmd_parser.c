@@ -159,19 +159,19 @@ void push_token(Vector *tokens, String *buffer, LexState *state) {
 // 
 bool check_terminal_state(LexState state) {
   if (state & BACKSLASH) {
-    fprintf(stderr, "No char after backslash '\\'\n");
+    error("No char after backslash '\\'\n");
     return false;
   }
   else if (state & SINGLE_QUOTING) {
-    fprintf(stderr, "No matching single quote '''\n");
+    error("No matching single quote '''\n");
     return false;
   }
   else if (state & DOUBLE_QUOTING) {
-    fprintf(stderr, "No matching double quote '\"'\n");
+    error("No matching double quote '\"'\n");
     return false;
   }
   else if (state & REDIRECT_PENDING) {
-    fprintf(stderr, "I need a file name after token '>' or '<'.\n");
+    error("I need a file name after token '>' or '<'.\n");
     return false;
   }
   return true;
@@ -260,8 +260,7 @@ bool lex_parse(const String *input, Vector *tokens) {
         for (int i = 0; i < string_length(buffer); i++) {
           char c = string_at(buffer, i);
           if (c < '0' || c > '9') {
-            fprintf(stderr,
-                    "Token before '>&' should be a valid file descriptor.\n"
+            error("Token before '>&' should be a valid file descriptor.\n"
                     "But '%s' is not.\n",
                     string_raw(buffer));
             string_destroy(buffer);
@@ -291,9 +290,7 @@ bool lex_parse(const String *input, Vector *tokens) {
           token_type = TOKEN_OUTPUT_REDIRECT_APPEND;
         }
         else if (ch == '<' || (last_char == '<' && ch == '>')) {
-          fprintf(stderr,
-                  "Direction of redirect is really in chaos around '%c'.\n",
-                  ch);
+          error("Direction of redirect is really in chaos around '%c'.\n", ch);
           return_code = false;
           break;
         }
@@ -314,10 +311,9 @@ bool lex_parse(const String *input, Vector *tokens) {
     }
     else if (state & REDIRECT_STREAM) {
       if (ch < '0' || ch > '9') {
-        fprintf(stderr,
-                "I expect a file descriptor after '>&'.\n"
-                "Character '%c' should not appear in file descriptor.\n",
-                ch);
+        error("I expect a file descriptor after '>&'.\n"
+              "Character '%c' should not appear in file descriptor.\n",
+              ch);
         return_code = false;
         break;
       }
@@ -392,7 +388,7 @@ void syntax_parse(Vector *tokens, Vector *commands) {
 // API
 // ======================================================================
 
-bool parse(const String *input) {
+bool parse(const String *input, Vector *commands) {
   Vector *tokens = vector_new(token_destroy);
 
   if (!lex_parse(input, tokens)) {
@@ -408,7 +404,7 @@ bool parse(const String *input) {
   }
   string_destroy(buffer);
 
-  // syntax_parse(tokens, )
+  syntax_parse(tokens, commands);
 
   vector_destroy(tokens);
 

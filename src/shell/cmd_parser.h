@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// TEST
 #include "str.h"
-bool parse(const String *input);
+#include "vector.h"
+
+bool parse(const String *input, Vector *commands);
 
 #endif
