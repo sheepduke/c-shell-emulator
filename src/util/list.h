@@ -5,7 +5,7 @@
 
 typedef struct List List;
 
-List *list_new();
+List *list_new(void (*free_func)(void *));
 
 void list_destroy(List *list);
 

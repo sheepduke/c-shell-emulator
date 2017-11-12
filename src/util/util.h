@@ -7,6 +7,8 @@
 
 int read_line(String *str, FILE *stream);
 
+void debug(const char *format, ...);
+
 void info(const char *format, ...);
 
 void warn(const char *format, ...);

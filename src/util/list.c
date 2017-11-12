@@ -27,8 +27,8 @@ static Node *node_new(void *data) {
   return node;
 }
 
-static void node_destroy(Node *node) {
-  free(node->data);
+static void node_destroy(Node *node, void (*free_func)(void *)) {
+  free_func(node->data);
   free(node);
 }
 
@@ -36,6 +36,7 @@ struct List {
   size_t size;
   Node *head;
   Node *tail;
+  void (*free_func)(void *);
 };
 
 // ----------------------------------------------------------------------
@@ -55,12 +56,13 @@ void link_node(Node *left, Node *right) {
 // API
 // ----------------------------------------------------------------------
 
-List *list_new() {
+List *list_new(void (*free_func)(void *)) {
   List *list = malloc(sizeof(List));
   assert(list);
   
   list->size = 0;
   list->head = list->tail = NULL;
+  list->free_func = free_func;
   return list;
 }
 
@@ -70,7 +72,7 @@ void list_destroy(List *list) {
 
   while (node) {
     temp = node->next;
-    node_destroy(node);
+    node_destroy(node, list->free_func);
     node = temp;
   }
   free(list);
@@ -133,7 +135,7 @@ void list_pop_front(List *list) {
   if (list->head) {
 	Node *old_head = list->head;
 	list->head = list->head->next;
-	node_destroy(old_head);
+	node_destroy(old_head, list->free_func);
   }
   list->size--;
 }
@@ -143,7 +145,7 @@ void list_pop_back(List *list) {
   if (list->tail) {
 	Node *old_tail = list->tail;
 	list->tail = list->tail->prev;
-	node_destroy(old_tail);
+	node_destroy(old_tail, list->free_func);
   }
   list->size--;
 }

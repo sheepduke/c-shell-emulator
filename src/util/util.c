@@ -7,13 +7,6 @@
 #include <unistd.h>
 
 // ======================================================================
-// Internal
-// ======================================================================
-#ifndef PRINT_LOG
-#define PRINT_LOG(...) printf(__VA_ARGS__)
-#endif
-
-// ======================================================================
 // API
 // ======================================================================
 
@@ -33,8 +26,21 @@ int read_line(String *str, FILE *stream) {
   return result;
 }
 
+void debug(const char *format, ...) {
+#ifndef NDEBUG
+  printf("[debug] ");
+  va_list args;
+  va_start(args, format);
+  vprintf(format, args);
+  va_end(args);
+  printf("\n");
+#endif
+}
+
 void info(const char *format, ...) {
+#ifndef NDEBUG
   printf("[info] ");
+#endif
   va_list args;
   va_start(args, format);
   vprintf(format, args);
@@ -52,10 +58,20 @@ void warn(const char *format, ...) {
 }
 
 void error(const char *format, ...) {
-  printf("[ERROR] ");
+  fprintf(stderr, "[ERROR] ");
   va_list args;
   va_start(args, format);
   vprintf(format, args);
   va_end(args);
   printf("\n");  
+}
+
+void fatal_error(const char *format, ...) {
+  fprintf(stderr, "FATAL ERROR: ");
+  va_list args;
+  va_start(args, format);
+  vprintf(format, args);
+  va_end(args);
+  printf("\n");
+  exit(1);
 }

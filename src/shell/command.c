@@ -85,9 +85,6 @@ void command_exec(const Command *command, int fd_in[2], int fd_out[2]) {
     buffer[i] = string_raw(vector_at(args, i-1));
   }
 
-  // Extract arguments
-
-
   execvp(buffer[0], buffer);
 
   close(fd_in[0]);
@@ -122,11 +119,13 @@ void execute_command_pipe(Vector *commands) {
   
   Vector *pipes = vector_new(free);
   size_t command_count = vector_size(commands);
-  pid_t first_pid = -1;
-  
+  int first_pid = -1;
+
+  // Prepare pipes.
   for (int i = 0; i <= command_count; i++) {
 	int *pipe_fd = malloc(sizeof(int) * 2);
     if (pipe(pipe_fd) == -1) {
+      error("System call error: cannot create pipe.");
       exit(1);
     }
 
@@ -142,26 +141,28 @@ void execute_command_pipe(Vector *commands) {
 	vector_push(pipes, pipe_fd);
   }
 
+  // Fork processes.
   for (int i = 0; i < command_count; i++) {
 	pid_t pid = fork();
-    if (i == 0) {
+
+    if (pid != 0 && i == 0) {
+      debug("PID to wait: %d\n", pid);
       first_pid = pid;
     }
-	
-	int *pipe_in = vector_at(pipes, i);
-	int *pipe_out = vector_at(pipes, i+1);
 
-	if (pid == 0) {
+    int *pipe_in = vector_at(pipes, i);
+    int *pipe_out = vector_at(pipes, i+1);
+
+    if (pid == -1) {
+      fatal_error("Fatal error: System call error: cannot fork.");
+    }
+	else if (pid == 0) {
 	  command_exec(vector_at(commands, i), pipe_in, pipe_out);
 	  return ;
 	}
-	else {
-
-	}
   }
 
-  int status;
-  waitpid(first_pid, &status,WUNTRACED);
+  waitpid(first_pid, NULL, 0);
 
   vector_destroy(pipes);
 }

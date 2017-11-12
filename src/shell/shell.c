@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "util.h"
+#include "list.h"
 #include "cmd_parser.h"
 #include "command.h"
 
@@ -8,16 +9,20 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/wait.h>
 
 // ----------------------------------------------------------------------
 //  Internal
 // ----------------------------------------------------------------------
 
-typedef struct Shell Shell;
 
 struct Shell {
   String *pwd;
+  List *jobs;
+  pid_t current_process;
 };
+
+static Shell *the_shell;
 
 static Shell *shell_new() {
   Shell *shell = malloc(sizeof(Shell));
@@ -26,6 +31,7 @@ static Shell *shell_new() {
   shell->pwd = string_from(getenv("HOME"));
   if (string_empty(shell->pwd)) {
 	error("Cannot locate $HOME directory.");
+    error("Setting '/' as current working directory.");
 	string_set(shell->pwd, "/");
   }
 
@@ -34,8 +40,14 @@ static Shell *shell_new() {
 	error(strerror(errno));
   }
   
-  info("Starting shell environment...");
-  info("Current working directory: %s", string_raw(shell->pwd));
+  debug("Starting shell environment...");
+  debug("Current working directory: %s", string_raw(shell->pwd));
+
+  shell->jobs = list_new(free);
+  shell->current_process = 0;
+
+  the_shell = shell;
+
   return shell;
 }
 
@@ -56,6 +68,29 @@ void shell_cd(Shell *shell, String *dir) {
   }
 }
 
+void print_prompt(Shell *shell) {
+  printf("%s $ ", string_raw(shell->pwd));
+  fflush(stdout);
+}
+
+void freeze_process(int signal) {
+  // FIXME This might not work.
+  info("");
+  debug("Current pid: %d", the_shell->current_process);
+  if (the_shell->current_process > 0) {
+    kill(the_shell->current_process, SIGTSTP);
+  }
+  print_prompt(the_shell);
+}
+
+void kill_process(int signal) {
+  // FIXME This might not work.
+  info("");
+  if (the_shell->current_process > 0) {
+    kill(the_shell->current_process, SIGINT);
+  }
+  print_prompt(the_shell);
+}
 
 // ----------------------------------------------------------------------
 //  API
@@ -67,8 +102,14 @@ void shell_start() {
 
   String *line = string_new();
   
+
+  signal(SIGQUIT, freeze_process);
+
+  signal(SIGINT, kill_process);
+
+
   while (true) {
-	printf("%s $ ", string_raw(shell->pwd));
+    print_prompt(shell);
 	string_clear(line);
 	
 	if (read_line(line, stdin) == -1) {
@@ -85,5 +126,17 @@ void shell_start() {
 
   string_destroy(line);
   shell_destroy(shell);
+}
+
+
+void register_job(pid_t pid, bool is_foreground) {
+  pid_t *pid_pointer = malloc(sizeof(pid_t));
+  *pid_pointer = pid;
+  list_push_back(the_shell->jobs, pid_pointer);
+
+  if (is_foreground) {
+    the_shell->current_process = pid;
+    waitpid(pid, NULL, 0);
+  }
 }
 

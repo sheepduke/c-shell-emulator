@@ -83,16 +83,16 @@ void token_to_string(const Token *token, String *out) {
     string_append(out, "'");
     break;
   case TOKEN_SEMI_COLON:
-    string_append(out, "Token terminal ';'");
+    string_append(out, "Token terminal semi_comma ';'");
     break;
   case TOKEN_AND:
-    string_append(out, "Token terminal '&&'");
+    string_append(out, "Token terminal and '&&'");
     break;
   case TOKEN_BAR:
-    string_append(out, "Token terminal '|'");
+    string_append(out, "Token terminal bar '|'");
     break;
   case TOKEN_BACKGROUND:
-    string_append(out, "Token terminal '&'");
+    string_append(out, "Token terminal background '&'");
     break;
   case TOKEN_REDIRECT_SOURCE:
     string_append(out, "Token input redirect stream source: '");
@@ -159,19 +159,19 @@ void push_token(Vector *tokens, String *buffer, LexState *state) {
 // 
 bool check_terminal_state(LexState state) {
   if (state & BACKSLASH) {
-    error("No char after backslash '\\'\n");
+    error("No char after backslash '\\'");
     return false;
   }
   else if (state & SINGLE_QUOTING) {
-    error("No matching single quote '''\n");
+    error("No matching single quote '''");
     return false;
   }
   else if (state & DOUBLE_QUOTING) {
-    error("No matching double quote '\"'\n");
+    error("No matching double quote '\"'");
     return false;
   }
   else if (state & REDIRECT_PENDING) {
-    error("I need a file name after token '>' or '<'.\n");
+    error("I need a file name after token '>' or '<'.");
     return false;
   }
   return true;
@@ -261,7 +261,7 @@ bool lex_parse(const String *input, Vector *tokens) {
           char c = string_at(buffer, i);
           if (c < '0' || c > '9') {
             error("Token before '>&' should be a valid file descriptor.\n"
-                    "But '%s' is not.\n",
+                    "But '%s' is not.",
                     string_raw(buffer));
             string_destroy(buffer);
             return false;
@@ -290,7 +290,7 @@ bool lex_parse(const String *input, Vector *tokens) {
           token_type = TOKEN_OUTPUT_REDIRECT_APPEND;
         }
         else if (ch == '<' || (last_char == '<' && ch == '>')) {
-          error("Direction of redirect is really in chaos around '%c'.\n", ch);
+          error("Direction of redirect is really in chaos around '%c'.", ch);
           return_code = false;
           break;
         }
@@ -312,7 +312,7 @@ bool lex_parse(const String *input, Vector *tokens) {
     else if (state & REDIRECT_STREAM) {
       if (ch < '0' || ch > '9') {
         error("I expect a file descriptor after '>&'.\n"
-              "Character '%c' should not appear in file descriptor.\n",
+              "Character '%c' should not appear in file descriptor.",
               ch);
         return_code = false;
         break;
