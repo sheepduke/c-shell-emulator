@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 // Struct for vector itself.
 // 
@@ -33,9 +34,11 @@ void vector_push(Vector *v, void *element);
 // // 
 // void vector_insert(Vector *vector, size_t index, void *data);
 
-// // Return element equals to given `value'.
-// // 
-// void *find(void *value, int *compare(void *, void *));
+// Return first index of element equals to given `value'.
+// If nothing has been found, return -1;
+// 
+size_t vector_find(Vector *vector, void *value,
+                   bool equal(const void *, const void *));
 
 // // Remove element equals to `value'.
 // // Elements are compared with `compare', it should return 1 if two elements

@@ -64,3 +64,14 @@ void vector_push(Vector *v, void *element) {
   v->size++;
 }
 
+size_t vector_find(Vector *vector, void *value,
+                   bool equal(const void *, const void *)) {
+  for (int i = 0; i < vector->size; i++) {
+    void *element = vector_at(vector, i);
+    if (equal(element, value)) {
+      return i;
+    }
+  }
+
+  return -1;
+}

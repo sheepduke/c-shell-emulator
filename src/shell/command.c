@@ -25,6 +25,11 @@ struct CommandIO {
   int new;
 };
 
+bool pid_equal(const void *element, const void *value) {
+  return *(int *)element == *(int *)value;
+}
+
+
 // ======================================================================
 // API
 // ======================================================================
@@ -119,8 +124,9 @@ void execute_command_pipe(Vector *commands) {
   
   Vector *pipes = vector_new(free);
   size_t command_count = vector_size(commands);
-  int first_pid = -1;
 
+  Vector *pid_list = vector_new(free);
+  
   // Prepare pipes.
   for (int i = 0; i <= command_count; i++) {
 	int *pipe_fd = malloc(sizeof(int) * 2);
@@ -143,26 +149,29 @@ void execute_command_pipe(Vector *commands) {
 
   // Fork processes.
   for (int i = 0; i < command_count; i++) {
-	pid_t pid = fork();
-
-    if (pid != 0 && i == 0) {
-      debug("PID to wait: %d\n", pid);
-      first_pid = pid;
-    }
-
-    int *pipe_in = vector_at(pipes, i);
-    int *pipe_out = vector_at(pipes, i+1);
+    pid_t pid = fork();
 
     if (pid == -1) {
       fatal_error("Fatal error: System call error: cannot fork.");
     }
-	else if (pid == 0) {
-	  command_exec(vector_at(commands, i), pipe_in, pipe_out);
-	  return ;
-	}
+    else if (pid != 0) {
+      debug("Forked PID: %d", pid);
+      int *pid_p = malloc(sizeof(int));
+      *pid_p = pid;
+      vector_push(pid_list, pid_p);
+    }
+    else if (pid == 0) {
+      int *pipe_in = vector_at(pipes, i);
+      int *pipe_out = vector_at(pipes, i+1);
+
+      command_exec(vector_at(commands, i), pipe_in, pipe_out);
+      return ;
+    }
   }
 
-  waitpid(first_pid, NULL, 0);
-
+  waitpid(*(int *)vector_at(pid_list, 0), NULL, 0);
+  waitpid(*(int *)vector_at(pid_list, vector_size(pid_list)-1), NULL, 0);
+  
+  vector_destroy(pid_list);
   vector_destroy(pipes);
 }
