@@ -44,7 +44,7 @@ This can be done in 2 steps:
 System call `waitpid` is used to "wait" for sub-process to finish, thus can be used to implement foreground commands.
 
 # Remaining Work
-- Improve/fix parser rules of form VAR=VALUE.
+- Improve/fix parser rules of form `VAR=VALUE`.
 - Finish syntax parser.
 - Maintain return code `$?`.
 - Implement IO redirection and connect it to commands.
