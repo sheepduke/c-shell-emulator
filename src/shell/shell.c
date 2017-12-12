@@ -20,6 +20,8 @@ struct Shell {
   String *pwd;
   List *jobs;
   pid_t current_process;
+  Vector *variable_name;
+  Vector *variable_value;
 };
 
 static Shell *the_shell;
@@ -104,9 +106,7 @@ void shell_start() {
   
 
   signal(SIGQUIT, freeze_process);
-
   signal(SIGINT, kill_process);
-
 
   while (true) {
     print_prompt(shell);
@@ -128,6 +128,35 @@ void shell_start() {
   shell_destroy(shell);
 }
 
+void shell_resolve_variable(const String *name, String *value) {
+  for (size_t i = 0; i < vector_size(the_shell->variable_name); i++) {
+    if (string_equal(name, vector_at(the_shell->variable_name, i))) {
+      string_append(value, vector_at(the_shell->variable_value, i));
+      return ;
+    }
+  }
+  string_append(value, getenv(string_raw(name)));
+}
+
+void print_env_variables() {
+  info("Environment Variables:");
+  // TODO
+}
+
+void set_shell_variable(const String *name, const String *value) {
+  for (size_t i = 0; i < vector_size(the_shell->variable_name); i++) {
+    if (string_equal(name, vector_at(the_shell->variable_name, i))) {
+      string_copy(vector_at(the_shell->variable_value, i), value);
+      return ;
+    }
+  }
+  vector_push(the_shell->variable_name, string_clone(name));
+  vector_push(the_shell->variable_value, string_clone(value));
+}
+
+void set_env_variable(const String *name, const String *value) {
+  setenv(string_raw(name), string_raw(value), 1);
+}
 
 void register_job(pid_t pid, bool is_foreground) {
   pid_t *pid_pointer = malloc(sizeof(pid_t));

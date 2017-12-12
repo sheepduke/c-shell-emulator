@@ -14,6 +14,10 @@ String *string_new();
 // 
 String *string_from(const char *data);
 
+// Create string by cloning from another.
+// 
+String *string_clone(const String *data);
+
 // Copy constructor
 // 
 void string_copy(String *str, const String *source);

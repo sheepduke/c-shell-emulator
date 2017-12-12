@@ -35,13 +35,12 @@ bool pid_equal(const void *element, const void *value) {
 // ======================================================================
 
 Command *command_new(String *name) {
-  Command *cmd = malloc(sizeof(Command));
+  Command *command = malloc(sizeof(Command));
 
-  cmd->name = name;
+  command->name = name;
+  command->args = vector_new(string_destroy);
 
-  cmd->args = vector_new(string_destroy);
-
-  return cmd;
+  return command;  
 }
 
 

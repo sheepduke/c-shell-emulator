@@ -38,7 +38,7 @@ Vector *vector_new(void (*destructor)(void *)) {
 void vector_destroy(void *obj) {
   Vector *vector = obj;
   for (int i = 0; i < vector->size; i++) {
-	vector->destructor(vector_at(vector, i));
+	vector->destructor(vector->data[i]);
   }
   free(vector);
 }
@@ -67,7 +67,7 @@ void vector_push(Vector *v, void *element) {
 size_t vector_find(Vector *vector, void *value,
                    bool equal(const void *, const void *)) {
   for (int i = 0; i < vector->size; i++) {
-    void *element = vector_at(vector, i);
+    const void *element = vector_at(vector, i);
     if (equal(element, value)) {
       return i;
     }

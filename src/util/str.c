@@ -49,9 +49,21 @@ String *string_new() {
 }
 
 String *string_from(const char *data) {
+  assert(data);
+  
   String *string = string_new();
 
   string_append(string, data);
+
+  return string;
+}
+
+String *string_clone(const String *data) {
+  assert(data);
+  
+  String *string = string_new();
+
+  string_copy(string, data);
 
   return string;
 }

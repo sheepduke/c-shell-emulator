@@ -1,4 +1,5 @@
 #include "cmd_parser.h"
+#include "command.h"
 #include "str.h"
 #include "vector.h"
 #include "util.h"
@@ -42,6 +43,14 @@ Token *token_new(TokenType type, String *value) {
   token->value = value;
 
   return token;
+}
+
+TokenType token_type(const Token *token) {
+  return token->type;
+}
+
+const String *token_value(const Token *token) {
+  return token->value;
 }
 
 Token *token_from(TokenType type, const char *value) {
@@ -380,8 +389,59 @@ bool lex_parse(const String *input, Vector *tokens) {
 // Syntax Parser
 // ======================================================================
 
-void syntax_parse(Vector *tokens, Vector *commands) {
-  
+typedef enum SyntaxState {
+  SYNTAX_NONE,
+  SYNTAX_ENV,
+  SYNTAX_COMMAND,
+  SYNTAX_REDIRECTION
+} SyntaxState;
+
+bool syntax_parse(Vector *tokens, Vector *commands) {
+  SyntaxState state = SYNTAX_NONE;
+
+  // Vector *or_commands = vector_new(command_destroy);
+  // Vector *and_commands = vector_new(vector_destroy);
+  // Vector *piped_commands = vector_new(vector_destroy);
+  Command *command = NULL;
+
+  bool return_code = true;
+
+  String *EXPORT = string_from("export");
+  bool export_flag = false;
+
+  for (int i = 0; return_code && i < vector_size(tokens); i++) {
+    const Token *token = vector_at(tokens, i);
+    TokenType type = token_type(token);
+    const String *value = token_value(token);
+
+    if (state == SYNTAX_NONE && type == TOKEN_LITERAL) {
+      if (string_equal(value, EXPORT)) {
+        command = command_new(string_clone(value));
+        export_flag = true;
+      }
+      else {
+        state = SYNTAX_COMMAND;
+        command = command_new(string_clone(value));
+      }
+    }
+    else if (export_flag && type == TOKEN_ENV_UPDATER_NAME) {
+      command_push_arg(command, string_clone(value));
+    }
+    else if (export_flag && type == TOKEN_ENV_UPDATER_VALUE) {
+    }
+    else if (state == SYNTAX_NONE && type == TOKEN_ENV_UPDATER_NAME) {
+      state = SYNTAX_ENV;
+    }
+    else if (state == SYNTAX_COMMAND && type == TOKEN_LITERAL) {
+       command_push_arg(command, string_clone(value));
+    }
+    else if (state == SYNTAX_COMMAND && type == TOKEN_VARIABLE) {
+      
+    }
+  }
+
+  string_destroy(EXPORT);
+  return return_code;
 }
 
 // ======================================================================
@@ -392,10 +452,12 @@ bool parse(const String *input, Vector *commands) {
   Vector *tokens = vector_new(token_destroy);
 
   if (!lex_parse(input, tokens)) {
+    error("Lexical parser returned false.");
+    vector_destroy(tokens);
     return false;
   }
-
-  info("Tokens:");
+  
+  debug("Tokens:");
   String *buffer = string_new();
   for (int i = 0; i < vector_size(tokens); i++) {
     token_to_string(vector_at(tokens, i), buffer);
@@ -404,7 +466,12 @@ bool parse(const String *input, Vector *commands) {
   }
   string_destroy(buffer);
 
-  syntax_parse(tokens, commands);
+  if (!syntax_parse(tokens, commands)) {
+    error("Syntax parse returned false.");
+    vector_destroy(tokens);
+    return false;
+  }
+  debug("Commands:");
 
   vector_destroy(tokens);
 
